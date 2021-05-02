@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <string.h>
+#include "location.h"
+
 
 static char input[100];
 
@@ -21,11 +23,11 @@ static int parseAndExecute()
       }
       else if (strcmp(verb, "look") == 0)
       {
-         printf("It's too dark to see.\n");
+         executeLook(noun);
       }
       else if (strcmp(verb, "go") == 0)
       {
-         printf("It's too dark to go anywhere.\n");
+         executeGo(noun);
       }
       else
       {
@@ -38,7 +40,7 @@ static int parseAndExecute()
 int main()
 {
    printf("Welcome to Little Cave Adventure.\n");
-   printf("It's very dark in here.\n");
+   executeLook("around");
    while (getInput() && parseAndExecute());
    printf("\nBye!\n");
    return 0;
