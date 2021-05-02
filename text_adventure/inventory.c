@@ -20,7 +20,7 @@ static void moveObject(const char *noun, OBJECT *from, OBJECT *to)
     else 
     {
         obj->location = to;
-        print("OK.\n");
+        printf("OK.\n");
     }
 }
 
