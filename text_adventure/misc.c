@@ -1,87 +1,69 @@
+#include <stdbool.h>
 #include <stdio.h>
-#include <string.h>
 #include "object.h"
 #include "misc.h"
 
-OBJECT *getPassageTo(OBJECT *targetLocation)
+bool isHolding(OBJECT *container, OBJECT *obj)
 {
-    OBJECT *obj;
-    for (obj = objs; obj < endOfObjs; obj++)
-    {
-        if (obj->location == player->location &&
-            obj->destination == targetLocation)
-        {
+   return obj != NULL && obj->location == container;
+}
+
+OBJECT *getPassage(OBJECT *from, OBJECT *to)
+{
+   if (from != NULL && to != NULL)
+   {
+      OBJECT *obj;
+      for (obj = objs; obj < endOfObjs; obj++)
+      {
+         if (isHolding(from, obj) && obj->destination == to)
+         {
             return obj;
-        }
-    }
-    return NULL;
+         }
+      }
+   }
+   return NULL;
 }
 
-DISTANCE distanceTo(OBJECT *obj)
+DISTANCE getDistance(OBJECT *from, OBJECT *to)
 {
-    return
-        obj == NULL                                 ? distUnknownObject :
-        obj == player                               ? distPlayer :
-        obj == player->location                     ? distLocation :
-        obj->location == player                     ? distHeld :
-        obj->location == player->location           ? distHere :
-        getPassageTo(obj) != NULL                   ? distOverthere :
-        obj->location == NULL                       ? distNotHere :
-        obj->location->location == player           ? distHeldContained :
-        obj->location->location == player->location ? distHereContained :
-                                                      distNotHere;
+   return to == NULL                               ? distUnknownObject :
+          to == from                               ? distSelf :
+          isHolding(from, to)                      ? distHeld :
+          isHolding(to, from)                      ? distLocation :
+          isHolding(from->location, to)            ? distHere :
+          isHolding(from, to->location)            ? distHeldContained :
+          isHolding(from->location, to->location)  ? distHereContained :
+          getPassage(from->location, to) != NULL   ? distOverthere :
+                                                     distNotHere;
 }
 
-static int nounIsInTags(const char *noun, const char **tags)
+OBJECT *actorHere(void)
 {
-    while (*tags != NULL)
-    {
-        if (strcmp(noun, *tags++) == 0) return 1;
-    }
-    return 0;
-}
-
-OBJECT *parseObject(const char *noun)
-{
-    OBJECT *obj, *found = NULL;
-    for (obj = objs; obj < endOfObjs; obj++)
-    {
-        if (noun != NULL && nounIsInTags(noun, obj->tags) &&
-           distanceTo(obj) < distanceTo(found))
-        {
-            found = obj;
-        }
-    }
-    return found;
-}
-
-OBJECT *personHere(void)
-{
-    OBJECT *obj;
-    for (obj = objs; obj < endOfObjs; obj++)
-    {
-        if (distanceTo(obj) == distHere && obj == guard)
-        {
-            return obj;
-        }
-    }
-    return NULL;
+   OBJECT *obj;
+   for (obj = objs; obj < endOfObjs; obj++)
+   {
+      if (isHolding(player->location, obj) && obj == guard)
+      {
+         return obj;
+      }
+   }
+   return NULL;
 }
 
 int listObjectsAtLocation(OBJECT *location)
 {
-    int count = 0;
-    OBJECT *obj;
-    for (obj = objs; obj < endOfObjs; obj++)
-    {
-        if (obj != player && obj->location == location)
-        {
-            if (count++ == 0)
-            {
-                printf("You see:\n");
-            }
-            printf("%s\n", obj->description);
-        }
-    }
-    return count;
+   int count = 0;
+   OBJECT *obj;
+   for (obj = objs; obj < endOfObjs; obj++)
+   {
+      if (obj != player && isHolding(location, obj))
+      {
+         if (count++ == 0)
+         {
+            printf("You see:\n");
+         }
+         printf("%s\n", obj->description);
+      }
+   }
+   return count;
 }

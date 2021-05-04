@@ -1,18 +1,17 @@
 typedef enum {
-    distPlayer,
-    distHeld,
-    distHeldContained,
-    distLocation,
-    distHere,
-    distHereContained,
-    distOverthere,
-    distNotHere,
-    distUnknownObject,
-    distNoObjectSpecified
+   distSelf,
+   distHeld,
+   distHeldContained,
+   distLocation,
+   distHere,
+   distHereContained,
+   distOverthere,
+   distNotHere,
+   distUnknownObject
 } DISTANCE;
 
-extern OBJECT *getPassageTo(OBJECT *targetLocation);
-extern DISTANCE distanceTo(OBJECT *obj);
-extern OBJECT *parseObject(const char *noun);
-extern OBJECT *personHere(void);
+extern bool isHolding(OBJECT *container, OBJECT *obj);
+extern OBJECT *getPassage(OBJECT *from, OBJECT *to);
+extern DISTANCE getDistance(OBJECT *from, OBJECT *to);
+extern OBJECT *actorHere(void);
 extern int listObjectsAtLocation(OBJECT *location);
